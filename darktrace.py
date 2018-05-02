@@ -26,4 +26,10 @@ class DarkTrace(object):
         sigStr = hmac.new(key=self.private,digestmod=hashlib.sha1,msg=macStr).hexdigest()
         headers = {"DTAPI-Token":self.token,"DTAPI-Date":dateStr,"DTAPI-Signature":sigStr}
         req = requests.get(url,verify=False,headers=headers)
+        if req.status_code == 200:
+            resp = json.loads(req.text)
+        elif req.status_code == 400:
+            raise(Exception("Authentication error"))
+        else:
+            raise(Exception("Unknown error. HTTP status code: {0}\nRequest content: {1}".format(req.status_code,req.text)))
         return(json.loads(req.text))
